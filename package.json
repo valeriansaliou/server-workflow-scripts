@@ -1,7 +1,8 @@
 {
   "name": "server-workflow-scripts",
-  "description": "Server workflow scripts.",
+  "description": "Server workflow scripts for fast project deployment and execution.",
   "version": "1.0.0",
+  "license": "MPL-2.0",
 
   "repository": {
     "type": "git",
