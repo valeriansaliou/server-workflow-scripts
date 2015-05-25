@@ -1,0 +1,51 @@
+#! /bin/sh
+#
+# websites        Start/stop websites
+#
+
+### BEGIN INIT INFO
+# Provides:          websites
+# Required-Start:    $remote_fs $network $named $time
+# Required-Stop:     $remote_fs $network $named $time
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts websites
+# Description:       Starts websites, mostly Django-powered websites.
+### END INIT INFO
+
+RUN=/usr/bin/run
+
+test -e $RUN || exit 0
+
+start()
+{
+    $RUN web start >> /dev/null
+}
+
+stop()
+{
+    $RUN web stop >> /dev/null
+}
+
+case "$1" in
+    start)
+    echo -n "Starting websites..."
+    start &
+    ;;
+    stop)
+    echo -n "Stopping websites..."
+    stop &
+    ;;
+    *)
+    echo "Usage: $0 {start|stop}" >&2
+    exit 1
+    ;;
+esac
+
+if [ $? -eq 0 ]; then
+    echo .
+else
+    echo " failed!"
+fi
+
+exit 0

@@ -1,0 +1,48 @@
+#!/bin/sh
+
+config_path="$(dirname $(readlink -f "$0"))/../../instance.cfg"; . $config_path;
+
+export PATH="/usr/local/bin:$PATH"
+
+BIN_PATH="${scripts_path}deploy/scripts/"
+LOCK_NAME=$(echo $1_$2|sed 's/\///g')
+LOCK_FILE="${scripts_path}deploy/locks/${LOCK_NAME}.lock"
+
+if [ -f "${BIN_PATH}$1.sh" ]; then
+	if [ ! -e $LOCK_FILE ]; then
+		touch $LOCK_FILE
+
+		if [ "$1" = "web" ]; then
+			if [ "$(whoami)" = "www-data" ]; then
+				${BIN_PATH}$1.sh $2 $3
+				rc=$?
+			else
+				sudo -u www-data ${BIN_PATH}$1.sh $2 $3
+				rc=$?
+			fi
+		elif [ "$1" = "svc" ]; then
+			if [ "$(whoami)" = "service" ]; then
+				${BIN_PATH}$1.sh $2 $3
+				rc=$?
+			else
+				sudo -u service ${BIN_PATH}$1.sh $2 $3
+				rc=$?
+			fi
+		else
+			${BIN_PATH}$1.sh $2
+			rc=$?
+		fi
+
+		rm $LOCK_FILE
+	else
+		rc=1
+		echo "Another deployment is already running for $2"
+	fi
+else
+	rc=1
+	echo "Unknown deploy script - ${BIN_PATH}$1.sh"
+fi
+
+if [ $rc != 0 ]; then
+	exit $rc
+fi
